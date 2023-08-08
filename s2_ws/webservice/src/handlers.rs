@@ -12,6 +12,7 @@ pub async fn health_check_handler(app_state: web::Data<AppState>) -> HttpRespons
 
 use super::models::Course;
 use chrono::Utc;
+use super::result::R;
 pub async fn new_course(
     new_course: web::Json<Course>,
     app_state: web::Data<AppState>,
@@ -33,7 +34,7 @@ pub async fn new_course(
         time: Some(Utc::now().naive_utc()),
     };
     app_state.courses.lock().unwrap().push(new_course);
-    HttpResponse::Ok().json("Course added")
+    HttpResponse::Ok().json(R::ok("Course added"))
 }
 
 pub async fn get_courses_for_teacher(

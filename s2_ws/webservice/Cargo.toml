@@ -11,8 +11,24 @@ actix-web = "3"
 actix-rt = "1.1.1"
 serde = { version = "1.0.132", features = ["derive"] }
 chrono = { version = "0.4.19", features = ["serde"] }
+[dependencies.uuid]
+version = "1.4.1"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
+log = "0.4.0"
+env_logger = "0.9.0"
+
+
+
+
 # 给生成的二进制文件起个别名
 [[bin]]
 name = "server1"
 [[bin]]
 name = "teacher-service"
+[bin.metadata]
+# 指定你的中间件模块的路径
+actix-web.middleware = "middleware"
