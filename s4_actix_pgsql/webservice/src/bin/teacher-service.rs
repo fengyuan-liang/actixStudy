@@ -22,11 +22,13 @@ mod state;
 mod result;
 #[path = "../middleware.rs"]
 mod middleware;
+#[path = "../db_access.rs"]
+mod db_access;
 
 #[actix_rt::main]
 async fn main() -> io::Result<()> {
     // 读取环境变量
-    dotenv.ok();
+    dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL 没有在 .env 文件里设置");
     let db_pool = PgPoolOptions::new()
         .connect(&database_url)

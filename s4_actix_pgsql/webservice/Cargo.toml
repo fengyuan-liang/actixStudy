@@ -14,12 +14,13 @@ chrono = { version = "0.4.19", features = ["serde"] }
 dotenv = "0.15.0"
 # openssl = { version = "0.10.38", features = ["vendored"] }
 serde = { version = "1.0.134", features = ["derive"] }
-sqlx = { version = "0.7.1", features = [
+sqlx = { version = "0.5.10", features = [
     "postgres",
     "runtime-tokio-rustls",
     "macros",
     "chrono",
 ] }
+
 
 # 给生成的二进制文件起个别名
 [[bin]]
