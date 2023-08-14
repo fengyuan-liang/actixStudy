@@ -24,8 +24,6 @@ sqlx = { version = "0.5.10", features = [
 
 # 给生成的二进制文件起个别名
 [[bin]]
-name = "server1"
-[[bin]]
 name = "teacher-service"
 [bin.metadata]
 # 指定你的中间件模块的路径

@@ -2,7 +2,6 @@ use std::{env, io};
 use std::sync::Mutex;
 
 use actix_web::{App, HttpServer, web};
-use actix_web::dev::Service;
 use actix_web::middleware::Logger;
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
@@ -10,9 +9,9 @@ use sqlx::postgres::PgPoolOptions;
 use routers::*;
 use state::AppState;
 
-#[path = "../handlers.rs"]
+#[path = "../handlers/mod.rs"]
 mod handlers;
-#[path = "../models.rs"]
+#[path = "../models/mod.rs"]
 mod models;
 #[path = "../routers.rs"]
 mod routers;
@@ -22,8 +21,8 @@ mod state;
 mod result;
 #[path = "../middleware.rs"]
 mod middleware;
-#[path = "../db_access.rs"]
-mod db_access;
+#[path = "../dbaccess/mod.rs"]
+mod dbaccess;
 #[path = "../error.rs"]
 mod error;
 
