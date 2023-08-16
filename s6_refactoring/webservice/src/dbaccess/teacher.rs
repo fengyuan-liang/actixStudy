@@ -1,31 +1,53 @@
 use sqlx::postgres::PgPool;
 
 use crate::error::MyError;
+use crate::models::course::Course;
 use crate::models::teacher::{CreateTeacher, Teacher, UpdateTeacher};
 
-pub async fn get_all_teachers_db(pool: &PgPool) -> Result<Vec<Teacher>, MyError> {
-    let rows = sqlx::query!(r#"select id, name, picture_url, profile from teacher"#)
+pub async fn get_courses_for_teacher_db2(
+    pool: &PgPool,
+    teacher_id: i32,
+) -> Result<Vec<Course>, MyError> {
+    let rows: Vec<Course> = sqlx::query_as!(
+        Course,
+        r#"SELECT * FROM course
+        WHERE teacher_id = $1"#,
+        teacher_id
+    )
         .fetch_all(pool)
         .await?;
 
-    let teachers = rows.iter().map(|r| Teacher {
-        id: r.id,
-        name: r.name.clone(),
-        picture_url: r.picture_url.clone(),
-        profile: r.profile.clone(),
-    })
+    Ok(rows)
+}
+
+pub async fn get_all_teachers_db(pool: &PgPool) -> Result<Vec<Teacher>, MyError> {
+    let rows = sqlx::query!(
+        r#"SELECT id, name, picture_url, profile
+            FROM teacher"#,
+    )
+        .fetch_all(pool)
+        .await?;
+
+    let teachers:Vec<Teacher> = rows
+        .iter()
+        .map(|r| Teacher {
+            id: r.id,
+            name: r.name.clone(),
+            picture_url: r.picture_url.clone(),
+            profile: r.profile.clone().unwrap(),
+        })
         .collect();
 
     match teachers.len() {
         0 => Err(MyError::NotFound("No teachers found".into())),
-        _ => Ok(teachers)
+        _ => Ok(teachers),
     }
 }
 
 pub async fn get_teacher_details_db(pool: &PgPool, teacher_id: i32) -> Result<Teacher, MyError> {
     let row = sqlx::query!(
-        r#"select id, name, picture_url, profile from teacher where id = $1"#,
-        teacher_id
+        r#"select id, name, picture_url, profile from teacher where id=$1"#,
+        teacher_id,
     )
         .fetch_one(pool)
         .await
@@ -33,9 +55,9 @@ pub async fn get_teacher_details_db(pool: &PgPool, teacher_id: i32) -> Result<Te
             id: r.id,
             name: r.name,
             picture_url: r.picture_url,
-            profile: r.profile,
+            profile: r.profile.clone().unwrap(),
         })
-        .ok_or(MyError::NotFound("Teacher id not found".into()))?;
+        .map_err(|_err| MyError::NotFound("Teacher id not found".into()))?;
     Ok(row)
 }
 
@@ -44,8 +66,8 @@ pub async fn post_new_teacher_db(
     new_teacher: CreateTeacher,
 ) -> Result<Teacher, MyError> {
     let row = sqlx::query!(
-        "insert into teacher(name, picture_url, profile) \
-        values ($1, $2, $3) returning id, name, picture_url, profile",
+        r#"insert into teacher(name, picture_url, profile)
+        values ($1, $2, $3) returning id, name, picture_url, profile"#,
         new_teacher.name,
         new_teacher.picture_url,
         new_teacher.profile,
@@ -57,7 +79,7 @@ pub async fn post_new_teacher_db(
         id: row.id,
         name: row.name,
         picture_url: row.picture_url,
-        profile: row.profile,
+        profile: row.profile.clone().unwrap(),
     })
 }
 
@@ -67,13 +89,19 @@ pub async fn update_teacher_details_db(
     update_teacher: UpdateTeacher,
 ) -> Result<Teacher, MyError> {
     let row = sqlx::query!(
-        "select id, name, picture_url, profile from teacher where id = $1",
+        r#"select id, name, picture_url, profile from teacher where id = $1"#,
         teacher_id
     )
         .fetch_one(pool)
         .await
         .map_err(|_err| MyError::NotFound("Teacher id not found".into()))?;
     // 后面就是拿着比较下 如果值不一样就跟新db
+    Ok(Teacher{
+        id: 0,
+        name: "".to_string(),
+        picture_url: "".to_string(),
+        profile: "".to_string(),
+    })
 }
 
 pub async fn delete_teacher_db(pool: &PgPool, teacher_id: i32) -> Result<String, MyError> {
