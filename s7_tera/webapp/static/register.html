@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./css/register.css">
+</head>
+<body>
+    <h2 >Teacher registration</h2>
+    <form action="/register-post" method="post">
+        <label for="name">Teacher name</label><br/>
+        <input type="text" name="name" id="name" value="{{current_name}}"><br/>
+        <label for="image_url">Teacher image url</label><br/>
+        <input type="text" name="image_url" id="image_url" value="{{current_image_url}}"><br/>
+        <label for="profile">brief profile</label><br/>
+        <input type="text" name="profile" id="profile" value="{{current_profile}}"><br/>
+        <label>
+            <p style="color: red">{{error}}</p>
+        </label><br/>
+        <button type="submit" id="b1">Register</button>
+    </form>
+</body>
+</html>

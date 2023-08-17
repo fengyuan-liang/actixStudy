@@ -133,30 +133,30 @@ psql -U user -d dbname
 create database [数据库名]; 
 删除数据库： 
 drop database [数据库名];  
-*重命名一个表： 
-alter table [表名A] rename to [表名B]; 
-*删除一个表： 
-drop table [表名]; 
+*重命名一个表：
+alter table [表名A] rename to [表名B];
+*删除一个表：
+drop table [表名];
 
-*在已有的表里添加字段： 
-alter table [表名] add column [字段名] [类型]; 
-*删除表中的字段： 
-alter table [表名] drop column [字段名]; 
-*重命名一个字段：  
-alter table [表名] rename column [字段名A] to [字段名B]; 
-*给一个字段设置缺省值：  
+*在已有的表里添加字段：
+alter table [表名] add column [字段名] [类型];
+*删除表中的字段：
+alter table [表名] drop column [字段名];
+*重命名一个字段：
+alter table [表名] rename column [字段名A] to [字段名B];
+*给一个字段设置缺省值：
 alter table [表名] alter column [字段名] set default [新的默认值];
-*去除缺省值：  
-alter table [表名] alter column [字段名] drop default; 
-在表中插入数据： 
+*去除缺省值：
+alter table [表名] alter column [字段名] drop default;
+在表中插入数据：
 insert into 表名 ([字段名m],[字段名n],......) values ([列m的值],[列n的值],......); 
-修改表中的某行某列的数据： 
-update [表名] set [目标字段名]=[目标值] where [该行特征]; 
-删除表中某行数据： 
-delete from [表名] where [该行特征]; 
+修改表中的某行某列的数据：
+update [表名] set [目标字段名]=[目标值] where [该行特征];
+删除表中某行数据：
+delete from [表名] where [该行特征];
 delete from [表名];--删空整个表 
-创建表： 
-create table ([字段名1] [类型1] ;,[字段名2] [类型2],......<,primary key (字段名m,字段名n,...)>;); 
+创建表：
+create table ([字段名1] [类型1] ;,[字段名2] [类型2],......<,primary key (字段名m,字段名n,...)>;);
 \copyright     显示 PostgreSQL 的使用和发行条款
 \encoding [字元编码名称]
                  显示或设定用户端字元编码
@@ -246,9 +246,9 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
     let mut s = String::new();
 
-     f.read_to_string(&mut s)?;
+    f.read_to_string(&mut s)?;
 
-     Ok(s)
+    Ok(s)
 }
 ```
 
@@ -278,11 +278,11 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 ## 4. 教师管理功能
 
+![image-20230817202804707](https://cdn.fengxianhub.top/resources-master/image-20230817202804707.png)
 
 
 
-
-## 5. 编写服务端web前端应用
+## 5. Tera编写服务端web前端应用
 
 ![image-20230816231601667](https://cdn.fengxianhub.top/resources-master/image-20230816231601667.png)
 
@@ -296,15 +296,15 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 在执行sqlx的代码的时候遇到了报错
 
-![image-20230816223445946](https://cdn.fengxianhub.top/resources-master/image-20230816223445946.png)
+![image-20230816223445946](C:\Users\Administrator\Desktop\image-20230816223445946.png)
 
 
 
-![image-20230816223504893](https://cdn.fengxianhub.top/resources-master/image-20230816223504893.png)
+![image-20230816223504893](C:\Users\Administrator\Desktop\image-20230816223504893.png)
 
 没想到表不存在居然连编译都通过不了，太夸张了！！！
 
-更离谱的是我添加表后居然编译就通过了
+更离谱的是我添加表后居然编译就通过了🦀
 
 >**看看gpt的解释**
 >
@@ -316,7 +316,84 @@ fn read_username_from_file() -> Result<String, io::Error> {
 >
 >需要注意的是，`sqlx` 的静态分析只能检查查询中引用的表是否存在，而不能检查查询的语义是否符合预期。因此，在执行查询之前，仍然需要在运行时处理数据库返回的错误，并确保查询的结果符合预期。
 
+### 0x02 添加日志打印
 
+没有日志可太痛苦了，加上加上
+
+```toml
+log = "0.4.0"
+env_logger = "0.6.0"
+```
+
+在`main.rs`
+
+```rust
+use log::info;
+use actix_web::middleware::Logger;
+
+fn init_logger() {
+    use chrono::Local;
+    use std::io::Write;
+
+    let env = env_logger::Env::default()
+        .filter_or(env_logger::DEFAULT_FILTER_ENV, "info");
+    // 设置日志打印格式
+    env_logger::Builder::from_env(env)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "{} {} [{}] {}",
+                Local::now().format("%Y-%m-%d %H:%M:%S"),
+                record.level(),
+                record.module_path().unwrap_or("<unnamed>"),
+                &record.args()
+            )
+        })
+        .init();
+    info!("env_logger initialized.");
+}
+
+fn main() {
+    init_logger();
+    info!("hello world");
+    let app = move || {
+        App::new()
+        .wrap(middleware::Logger::default())
+}
+```
+
+搞好就有日志了
+
+```shell
+2023-08-17 22:16:10 INFO [teacher_service] env_logger initialized.
+2023-08-17 22:16:10 INFO [actix_server::builder] starting 10 workers
+2023-08-17 22:16:10 INFO [actix_server::server] Actix runtime found; starting in Actix runtime
+2023-08-17 22:16:21 INFO [actix_web::middleware::logger] 127.0.0.1 "POST /teacher HTTP/1.1" 500 96 "-" "Apifox/1.0.0 (https://apifox.com)" 0.000598
+2023-08-17 22:19:29 INFO [actix_web::middleware::logger] 127.0.0.1 "GET /teacher HTTP/1.1" 200 106 "-" "Apifox/1.0.0 (https://apifox.com)" 0.002986
+2023-08-17 22:19:45 INFO [actix_web::middleware::logger] 127.0.0.1 "POST /teacher HTTP/1.1" 500 96 "-" "Apifox/1.0.0 (https://apifox.com)" 0.000134
+```
+
+如果我们的`sqlx`在执行过程中出现了错误，可以把日志调整到`debug`就能看到`sqlx`的报错提示
+
+```rust
+    let env = env_logger::Env::default()
+        .filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
+```
+
+```shell
+2023-08-17 22:24:03 INFO [teacher_service] env_logger initialized.
+2023-08-17 22:24:03 INFO [actix_server::builder] starting 10 workers
+2023-08-17 22:24:03 INFO [actix_server::server] Actix runtime found; starting in Actix runtime
+2023-08-17 22:24:06 DEBUG [actix_web::data] Failed to extract `Data<teacher_service::models::teacher::CreateTeacher>` for `/teacher` handler. For the Data extractor to work correctly, wrap the data with `Data::new()` and pass it to `App::app_data()`. Ensure that types align in both the set and retrieve calls.
+2023-08-17 22:24:06 DEBUG [actix_web::middleware::logger] Error in response: "Requested application data is not configured correctly. View/enable debug logs for more details."
+2023-08-17 22:24:06 INFO [actix_web::middleware::logger] 127.0.0.1 "POST /teacher HTTP/1.1" 500 96 "-" "Apifox/1.0.0 (https://apifox.com)" 0.000622
+2023-08-17 22:24:13 INFO [actix_server::server] SIGINT received; starting forced shutdown
+
+2023-08-17 22:35:46 DEBUG [sqlx_core::logger] summary="insert into teacher(name, picture_url, …" db.statement="\n\ninsert into\n  teacher(name, picture_url, profile)\nvalues\n  ($1, $2, $3) returning id,\n  name,\n  picture_url,\n  profile\n" rows_affected=0 rows_returned=0 elapsed=1.8817ms
+Database error occurred: "error returned from database: duplicate key value violates unique constraint \"teacher_pkey\""
+2023-08-17 22:35:46 DEBUG [actix_web::middleware::logger] Error in response: DBError("error returned from database: duplicate key value violates unique constraint \"teacher_pkey\"")
+
+```
 
 
 

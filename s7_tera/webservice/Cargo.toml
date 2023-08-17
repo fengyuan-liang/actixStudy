@@ -22,7 +22,7 @@ sqlx = { version = "0.7.1", features = [
 ] }
 # 日志相关
 log = "0.4.0"
-env_logger = "0.6.0"
+env_logger = "0.10.0"
 
 # 给生成的二进制文件起个别名
 [[bin]]
