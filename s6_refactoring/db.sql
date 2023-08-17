@@ -21,3 +21,29 @@ values(2,
        1,
        'Second course',
        '2022-01-18 05:45:00');
+
+-- ////////////////////////////////
+
+drop table if exists teacher;
+
+
+create table teacher (
+                         id serial primary key,
+                         name varchar(140) not null,
+                         picture_url varchar(140) not null,
+                         profile varchar(140)
+);
+
+
+insert into teacher (id, name, picture_url, profile)
+values(1,
+       'name test',
+       'http://xxx.png',
+       'profile_test1');
+
+
+insert into teacher (id, name, picture_url, profile)
+values(2,
+       'name test',
+       'http://xxx.png',
+       'profile_test2');
