@@ -246,9 +246,9 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
     let mut s = String::new();
 
-    f.read_to_string(&mut s)?;
+     f.read_to_string(&mut s)?;
 
-    Ok(s)
+     Ok(s)
 }
 ```
 
@@ -296,11 +296,11 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 在执行sqlx的代码的时候遇到了报错
 
-![image-20230816223445946](C:\Users\Administrator\Desktop\image-20230816223445946.png)
+![](https://cdn.fengxianhub.top/resources-master/image-20230816223504893.png)
 
 
 
-![image-20230816223504893](C:\Users\Administrator\Desktop\image-20230816223504893.png)
+![](https://cdn.fengxianhub.top/resources-master/image-20230816223445946.png)
 
 没想到表不存在居然连编译都通过不了，太夸张了！！！
 
@@ -358,8 +358,8 @@ fn main() {
     info!("hello world");
     let app = move || {
         App::new()
-        .wrap(middleware::Logger::default())
-}
+            .wrap(middleware::Logger::default())
+    }
 ```
 
 搞好就有日志了
@@ -377,7 +377,7 @@ fn main() {
 
 ```rust
     let env = env_logger::Env::default()
-        .filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
+.filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
 ```
 
 ```shell
