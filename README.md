@@ -286,7 +286,78 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 ![image-20230816231601667](https://cdn.fengxianhub.top/resources-master/image-20230816231601667.png)
 
+>前后端不分离写着也挺好玩的😁
 
+![image-20230821212244733](https://cdn.fengxianhub.top/resources-master/image-20230821212244733.png)
+
+## 6. WebAssembly编写应用
+
+>参考资料：https://rustwasm.github.io/docs/book/
+
+这里我们用`webAssembly`来编写课程管理功能
+
+![image-20230821212353264](https://cdn.fengxianhub.top/resources-master/image-20230821212353264.png)
+
+### 6.1 WebAssembly简介
+
+WebAssembly是一种新的编码方式，可以在现代浏览器中运行
+
+- 它是一种低级的类汇编语言
+- 具有紧凑的二进制格式
+- 可以接近原生的性能运行
+- 并为rust等语言提供了一个编译目标，以便它们在web上运行
+- 它也被设计可以于JavaScript共存，允许两者一起工作
+
+![image-20230821213059495](https://cdn.fengxianhub.top/resources-master/image-20230821213059495.png)
+
+![image-20230821213128570](https://cdn.fengxianhub.top/resources-master/image-20230821213128570.png)
+
+![image-20230821213149484](https://cdn.fengxianhub.top/resources-master/image-20230821213149484.png)
+
+![image-20230821213216403](https://cdn.fengxianhub.top/resources-master/image-20230821213216403.png)
+
+![image-20230821213250752](https://cdn.fengxianhub.top/resources-master/image-20230821213250752.png)
+
+![image-20230821213411808](https://cdn.fengxianhub.top/resources-master/image-20230821213411808.png)
+
+### 6.2 WebAssembly环境搭建
+
+我们先进入这个网站：https://rustwasm.github.io/docs/book/game-of-life/setup.html
+
+对应先安装`wasm-pack`
+
+![image-20230821213716826](https://cdn.fengxianhub.top/resources-master/image-20230821213716826.png)
+
+装好后执行
+
+```shell
+cargo install cargo-generate
+```
+
+windows用户在安装的时候可能会出错，比如这样
+
+```shell
+$ cargo install cargo-generate
+.... 一大堆报错
+error: could not compile `cargo-generate` (bin "cargo-generate") due to previous error
+error: failed to compile `cargo-generate v0.18.3`, intermediate artifacts can be found at `C:\Users\Administrator\AppData\Local\Temp\cargo-installDiuaAo`
+```
+
+>这里可以看官方的这个issue
+>
+>- https://github.com/cargo-generate/cargo-generate/issues/948
+>
+>解决方法：
+>
+>- https://github.com/cargo-generate/cargo-generate/issues/942#issuecomment-1558214088
+>
+>其实也就是
+>
+>```shell
+>cargo install --locked cargo-generate --version 0.18.2
+>```
+>
+>但是显然问题还是没有解决，还是安装失败了😫
 
 
 
@@ -358,8 +429,8 @@ fn main() {
     info!("hello world");
     let app = move || {
         App::new()
-            .wrap(middleware::Logger::default())
-    }
+        .wrap(middleware::Logger::default())
+}
 ```
 
 搞好就有日志了
@@ -377,7 +448,7 @@ fn main() {
 
 ```rust
     let env = env_logger::Env::default()
-.filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
+        .filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
 ```
 
 ```shell

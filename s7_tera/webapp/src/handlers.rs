@@ -65,15 +65,17 @@ pub async fn handle_register(
     params: web::Form<TeacherRegisterForm>
 ) -> Result<HttpResponse, Error>  {
     let mut ctx = tera::Context::new();
-    let s = ();
+    let  s;
     if params.name == "Dave" {
+        error!("params.name == Dave");
         ctx.insert("error", "Dave already exists!");
         ctx.insert("current_name", &params.name);
         ctx.insert("current_image_url", &params.image_url);
         ctx.insert("current_profile", &params.profile);
-        let s = tmpl
-            .render("register", &ctx)
-            .map_err(|_| MyError::TeraError("Template error".to_string()));
+        s = tmpl
+            .render("register.html", &ctx)
+            .map_err(|_| MyError::TeraError("Template error".to_string()))
+            .unwrap()
     } else {
         let new_teacher = json!({
             "name": &params.name,
@@ -89,7 +91,8 @@ pub async fn handle_register(
             .body()
             .await?;
         let teacher_response: R<TeacherResponse> = serde_json::from_str(&std::str::from_utf8(&res)?)?;
-        let s = format!("congratulations! Your id is: {}", teacher_response.data.id);
+        info!("teacher_response:{:?}", teacher_response);
+        s = format!("congratulations! Your id is: {}", teacher_response.data.id);
     }
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
