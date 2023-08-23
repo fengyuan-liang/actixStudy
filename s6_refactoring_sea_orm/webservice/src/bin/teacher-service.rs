@@ -1,15 +1,15 @@
-use std::{env, io};
-use std::sync::Mutex;
-use std::time::Duration;
-
-use actix_web::{App, HttpServer, middleware, web};
+use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer};
+use chrono::Local;
 use dotenv::dotenv;
 use log::info;
-use sea_orm::{ConnectOptions, Database};
-use chrono::Local;
-use std::io::Write;
 use routers::*;
+use sea_orm::{ConnectOptions, Database};
 use state::AppState;
+use std::io::Write;
+use std::sync::Mutex;
+use std::time::Duration;
+use std::time::Instant;
+use std::{env, io};
 
 #[path = "../dbaccess/mod.rs"]
 mod dbaccess;
@@ -46,7 +46,9 @@ async fn main() -> io::Result<()> {
     });
     let app = move || {
         App::new()
+            // 日志中间件
             .wrap(middleware::Logger::default())
+            //.wrap(request_logger) // 自定义的中间件
             .app_data(shared_data.clone())
             .configure(general_routes)
             .configure(course_routes)
@@ -67,7 +69,6 @@ fn init_db(opt: &mut ConnectOptions) {
         .sqlx_logging_level(log::LevelFilter::Info)
         .set_schema_search_path("public"); // Setting default PostgreSQL schema
 }
-
 
 fn init_logger() {
     use env_logger::fmt::Color;
@@ -93,7 +94,7 @@ fn init_logger() {
 
             writeln!(
                 buf,
-                "{} {} [ {} ] {}",
+                "{} {} [{}] {}",
                 Local::now().format("%Y-%m-%d %H:%M:%S"),
                 level_style.value(record.level()),
                 style.value(record.module_path().unwrap_or("<unnamed>")),
@@ -104,3 +105,24 @@ fn init_logger() {
         .init();
     info!("env_logger initialized.");
 }
+
+// async fn request_logger(
+//     req: HttpRequest,
+//     srv: web::Data<HttpServer<fn() -> App<App>, fn(App<App>) -> App<App>, fn(App<App>) -> App<App>, fn(App<App>) -> App<App>>>,
+//     app: web::Data<AppState>,
+//     payload: web::Payload,
+// ) -> actix_web::Result<HttpResponse> {
+//     let start = Instant::now();
+//     let response = srv.service_fn(app.get_ref().clone(), req, payload).await?;
+//     let elapsed = start.elapsed();
+
+//     // 打印请求路径和耗时
+//     println!(
+//         "Request: {} {} [{}μs]",
+//         response.request().method(),
+//         response.request().uri(),
+//         elapsed.as_micros()
+//     );
+
+//     Ok(response)
+// }
