@@ -129,6 +129,10 @@ psql -U user -d dbname
 
 \di 查看索引 
 
+执行sql脚本
+# \i后跟sql文件路径，比如/pathA/xxx.sql
+testdb=# \i testdb.sql
+
 创建数据库： 
 create database [数据库名]; 
 删除数据库： 
