@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::course::{get_course_detail, get_courses_for_teacher, post_new_course, get_all_course};
+use crate::handlers::course::{get_course_detail, get_courses_for_teacher, get_all_course};
 use crate::handlers::general::health_check_handler;
 use crate::handlers::teacher::{ get_all_teachers, get_teacher_details};
 

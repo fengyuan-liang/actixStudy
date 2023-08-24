@@ -1,4 +1,4 @@
-use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{middleware, web, App, HttpServer};
 use chrono::Local;
 use dotenv::dotenv;
 use log::info;
@@ -7,9 +7,10 @@ use sea_orm::{ConnectOptions, Database};
 use state::AppState;
 use std::io::Write;
 use std::sync::Mutex;
-use std::time::Duration;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use std::{env, io};
+use actix_web::dev::Service;
+use futures_util::FutureExt;
 
 #[path = "../dbaccess/mod.rs"]
 mod dbaccess;
@@ -17,6 +18,8 @@ mod dbaccess;
 mod error;
 #[path = "../handlers/mod.rs"]
 mod handlers;
+#[path = "../middleware/mod.rs"]
+mod middle;
 #[path = "../models/mod.rs"]
 mod models;
 #[path = "../result.rs"]
@@ -25,6 +28,8 @@ mod result;
 mod routers;
 #[path = "../state.rs"]
 mod state;
+#[path = "../middleware/mod.rs"]
+mod my_middleware;
 
 #[actix_rt::main]
 async fn main() -> io::Result<()> {
@@ -49,6 +54,32 @@ async fn main() -> io::Result<()> {
             // 日志中间件
             .wrap(middleware::Logger::default())
             //.wrap(request_logger) // 自定义的中间件
+            .wrap_fn(|req, srv| {
+                info!("1. Hi from start. You requested: {}", req.path());
+                srv.call(req).map(|res| {
+                    info!("2. Hi from response");
+                    res
+                })
+            })
+            .wrap_fn(|req, srv| {
+                let start_time = Instant::now();
+                let path = req.path().to_owned();
+                println!("{}", "2. Pre-process the Request");
+                let fut = srv.call(req);
+                async move {
+                    let res = fut.await;
+                    let elapsed_time = start_time.elapsed();
+                    println!("{}", "3. Post-process a Response");
+                    println!(
+                        "Request to {} took {:?}",
+                        path,
+                        elapsed_time
+                    );
+                    res
+                }
+            })
+            .wrap(my_middleware::timedMiddleware::Timed)
+            .wrap(my_middleware::auth::Auth)
             .app_data(shared_data.clone())
             .configure(general_routes)
             .configure(course_routes)
@@ -105,24 +136,3 @@ fn init_logger() {
         .init();
     info!("env_logger initialized.");
 }
-
-// async fn request_logger(
-//     req: HttpRequest,
-//     srv: web::Data<HttpServer<fn() -> App<App>, fn(App<App>) -> App<App>, fn(App<App>) -> App<App>, fn(App<App>) -> App<App>>>,
-//     app: web::Data<AppState>,
-//     payload: web::Payload,
-// ) -> actix_web::Result<HttpResponse> {
-//     let start = Instant::now();
-//     let response = srv.service_fn(app.get_ref().clone(), req, payload).await?;
-//     let elapsed = start.elapsed();
-
-//     // 打印请求路径和耗时
-//     println!(
-//         "Request: {} {} [{}μs]",
-//         response.request().method(),
-//         response.request().uri(),
-//         elapsed.as_micros()
-//     );
-
-//     Ok(response)
-// }
