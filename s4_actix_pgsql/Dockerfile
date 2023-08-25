@@ -1,22 +1,15 @@
-# Build: docker build -t rust/webservice:1.0 .
-# Run: docker run -p 8080:8080 rust/webservice:1.0
+FROM oldcai/rust-musl-builder:latest as build
+ADD . /home/rust/src
+WORKDIR /home/rust/src
 
-FROM rust:latest AS build
-WORKDIR /usr/src/
-RUN apt update && apt-get install -y musl-tools && rm -rf /var/lib/apt/lists/*
-RUN rustup target add x86_64-unknown-linux-musl
-
-RUN USER=root cargo new webservice
-WORKDIR /usr/src/webservice
-COPY Cargo.toml Cargo.lock ./
+#RUN apk add --no-cache ca-certificates gcc mingw-w64-gcc libc-dev musl-dev
+#RUN rustup target add x86_64-unknown-linux-musl
 RUN cargo build --release
 
-COPY src ./src
-RUN cargo install --target x86_64-unknown-linux-musl --path .
+FROM alpine:latest
 
-FROM scratch
-WORKDIR /app/
-COPY --from=build /usr/local/cargo/bin/webservice /app/
-EXPOSE 8080
-USER 1000
-ENTRYPOINT ["./webservice"]
+WORKDIR /web/
+COPY --from=build /home/rust/src/target/x86_64-unknown-linux-musl/release/webservice /web/
+
+CMD ["./webservice", "0.0.0.0:80"]
+

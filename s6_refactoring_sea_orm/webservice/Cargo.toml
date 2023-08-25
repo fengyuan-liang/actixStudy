@@ -9,7 +9,7 @@ default-run = "teacher-service"
 # 给生成的二进制文件起个别名
 [[bin]]
 name = "teacher-service"
-[bin.metadata]
+path = "./src/bin/teacher-service.rs"
 
 [dependencies]
 
